@@ -80,6 +80,7 @@ public class AddressBook {
     private static final String MESSAGE_ERROR_READING_FROM_FILE = "Unexpected error: unable to read from file: %1$s";
     private static final String MESSAGE_ERROR_WRITING_TO_FILE = "Unexpected error: unable to write to file: %1$s";
     private static final String MESSAGE_PERSONS_FOUND_OVERVIEW = "%1$d persons found!";
+    private static final String MESSAGE_PERSONS_SORTED_OVERVIEW = "%1$d persons sorted!";
     private static final String MESSAGE_STORAGE_FILE_CREATED = "Created new empty storage file: %1$s";
     private static final String MESSAGE_WELCOME = "Welcome to your Address Book!";
     private static final String MESSAGE_USING_DEFAULT_FILE = "Using default storage file : " + DEFAULT_STORAGE_FILEPATH;
@@ -117,6 +118,9 @@ public class AddressBook {
     private static final String COMMAND_CLEAR_WORD = "clear";
     private static final String COMMAND_CLEAR_DESC = "Clears address book permanently.";
     private static final String COMMAND_CLEAR_EXAMPLE = COMMAND_CLEAR_WORD;
+    private static final String MESSAGE_CANCEL_ADDRESSBOOK_CLEAR = "Clear operation cancled" ;
+    private static final String MESSAGE_ADDRESSBOOK_CLEAR_CONFIRMATION = "Are you SURE you want to clear the addressbook?(Y/N)";
+
 
     private static final String COMMAND_HELP_WORD = "help";
     private static final String COMMAND_HELP_DESC = "Shows program usage instructions.";
@@ -178,6 +182,7 @@ public class AddressBook {
      * List of all persons in the address book.
      */
     private static final ArrayList<String[]> ALL_PERSONS = new ArrayList<>();
+
 
     /**
      * Stores the most recent list of persons shown to the user as a result of a user command.
@@ -422,7 +427,7 @@ public class AddressBook {
             return COMMAND_SORT_ERROR_EMPTY_ADDRESSBOOK;
         ArrayList<String[]> toBeDisplayed = sortAllPersonsInAddressBook();
         showToUser(toBeDisplayed);
-        return getMessageForPersonsDisplayedSummary(toBeDisplayed);
+        return getMessageForSortedPersonsDisplayedSummary(toBeDisplayed);
     }
 
     private static String executeAddPerson(String commandArgs) {
@@ -474,6 +479,10 @@ public class AddressBook {
      */
     private static String getMessageForPersonsDisplayedSummary(ArrayList<String[]> personsDisplayed) {
         return String.format(MESSAGE_PERSONS_FOUND_OVERVIEW, personsDisplayed.size());
+    }
+
+    private static String getMessageForSortedPersonsDisplayedSummary(ArrayList<String[]> personsDisplayed) {
+        return String.format(MESSAGE_PERSONS_SORTED_OVERVIEW, personsDisplayed.size());
     }
 
     /**
@@ -574,8 +583,24 @@ public class AddressBook {
      * @return feedback display message for the operation result
      */
     private static String executeClearAddressBook() {
-        clearAddressBook();
-        return MESSAGE_ADDRESSBOOK_CLEARED;
+        if (askForConfirmation()) {
+            clearAddressBook();
+            return MESSAGE_ADDRESSBOOK_CLEARED;
+        }
+        return MESSAGE_CANCEL_ADDRESSBOOK_CLEAR;
+    }
+
+
+    private static boolean askForConfirmation() {
+        showToUser(MESSAGE_ADDRESSBOOK_CLEAR_CONFIRMATION);
+        System.out.print(LINE_PREFIX + "Enter command: ");
+        String inputLine = SCANNER.nextLine();
+        while (inputLine.trim().isEmpty() || inputLine.trim().charAt(0) == INPUT_COMMENT_MARKER) {
+            inputLine = SCANNER.nextLine();
+        }
+        return inputLine.equals("Y")||inputLine.equals("Yes")||
+                inputLine.equals("y")||inputLine.equals("yes")? true:false;
+
     }
 
     /**
@@ -617,6 +642,7 @@ public class AddressBook {
         }
         return inputLine;
     }
+
 
    /*
     * NOTE : =============================================================
