@@ -84,6 +84,8 @@ public class AddressBook {
     private static final String MESSAGE_STORAGE_FILE_CREATED = "Created new empty storage file: %1$s";
     private static final String MESSAGE_WELCOME = "Welcome to your Address Book!";
     private static final String MESSAGE_USING_DEFAULT_FILE = "Using default storage file : " + DEFAULT_STORAGE_FILEPATH;
+    private static final String MESSAGE_BOOK_HAS_SIZE = "There are %1$d entries in your addressbook";
+
 
     // These are the prefix strings to define the data type of a command parameter
     private static final String PERSON_DATA_PREFIX_PHONE = "p/";
@@ -132,6 +134,12 @@ public class AddressBook {
 
     private static final String COMMAND_SORT_WORD = "sort";
     private static final String COMMAND_SORT_ERROR_EMPTY_ADDRESSBOOK = "Addressbook is empty! Please add in entries before sorting.";
+    private static final String COMMAND_SORT_DESC = "Sort persons in alphabetical order. The original list is untouched (still based on sequence of being added)";
+    private static final String COMMAND_SORT_EXAMPLE = COMMAND_SORT_WORD;
+
+    private static final String COMMAND_SIZE_WORD = "size";
+    private static final String COMMAND_SIZE_DESC = "Display the number of entries in the addressbook.";
+    private static final String COMMAND_SIZE_EXAMPLE = COMMAND_SIZE_WORD;
 
     private static final String DIVIDER = "===================================================";
 
@@ -370,8 +378,7 @@ public class AddressBook {
         final String commandType = commandTypeAndParams[0];
         final String commandArgs = commandTypeAndParams[1];
         switch (commandType) {
-            case COMMAND_SORT_WORD:
-                return executeSortPerson(commandArgs);
+
         case COMMAND_ADD_WORD:
             return executeAddPerson(commandArgs);
         case COMMAND_FIND_WORD:
@@ -384,8 +391,13 @@ public class AddressBook {
             return executeClearAddressBook();
         case COMMAND_HELP_WORD:
             return getUsageInfoForAllCommands();
+        case COMMAND_SORT_WORD:
+            return executeSortPerson(commandArgs);
+            case COMMAND_SIZE_WORD:
+             return executeSize(commandArgs);
         case COMMAND_EXIT_WORD:
             executeExitProgramRequest();
+
         default:
             return getMessageForInvalidCommandInput(commandType, getUsageInfoForAllCommands());
         }
@@ -428,6 +440,10 @@ public class AddressBook {
         ArrayList<String[]> toBeDisplayed = sortAllPersonsInAddressBook();
         showToUser(toBeDisplayed);
         return getMessageForSortedPersonsDisplayedSummary(toBeDisplayed);
+    }
+
+    private static String executeSize(String commandArgs) {
+        return getMessageForSizeDisplayedSummary();
     }
 
     private static String executeAddPerson(String commandArgs) {
@@ -483,6 +499,10 @@ public class AddressBook {
 
     private static String getMessageForSortedPersonsDisplayedSummary(ArrayList<String[]> personsDisplayed) {
         return String.format(MESSAGE_PERSONS_SORTED_OVERVIEW, personsDisplayed.size());
+    }
+
+    private static String getMessageForSizeDisplayedSummary() {
+        return String.format(MESSAGE_BOOK_HAS_SIZE, ALL_PERSONS.size());
     }
 
     /**
@@ -1142,6 +1162,8 @@ public class AddressBook {
                 + getUsageInfoForViewCommand() + LINE_SEPERATOR
                 + getUsageInfoForDeleteCommand() + LINE_SEPERATOR
                 + getUsageInfoForClearCommand() + LINE_SEPERATOR
+                + getUsageInfoForSortCommand() + LINE_SEPERATOR
+                + getUsageInfoForSizeCommand() + LINE_SEPERATOR
                 + getUsageInfoForExitCommand() + LINE_SEPERATOR
                 + getUsageInfoForHelpCommand();
     }
@@ -1191,6 +1213,17 @@ public class AddressBook {
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_EXIT_EXAMPLE);
     }
 
+    /** Returns the string for showing 'sort' command usage instruction */
+    private static String getUsageInfoForSortCommand() {
+        return String.format(MESSAGE_COMMAND_HELP, COMMAND_SORT_WORD, COMMAND_SORT_DESC) + LINE_SEPERATOR
+                + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_SORT_EXAMPLE) + LINE_SEPERATOR;
+    }
+
+    /** Returns the string for showing 'size' command usage instruction */
+    private static String getUsageInfoForSizeCommand() {
+        return String.format(MESSAGE_COMMAND_HELP, COMMAND_SIZE_WORD, COMMAND_SIZE_DESC) + LINE_SEPERATOR
+                + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_SIZE_EXAMPLE) + LINE_SEPERATOR;
+    }
 
     /*
      * ============================
