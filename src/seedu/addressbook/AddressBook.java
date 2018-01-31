@@ -14,14 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 /*
  * NOTE : =============================================================
@@ -132,6 +125,9 @@ public class AddressBook {
     private static final String COMMAND_EXIT_WORD = "exit";
     private static final String COMMAND_EXIT_DESC = "Exits the program.";
     private static final String COMMAND_EXIT_EXAMPLE = COMMAND_EXIT_WORD;
+
+    private static final String COMMAND_SORT_WORD = "sort";
+    private static final String COMMAND_SORT_ERROR_EMPTY_ADDRESSBOOK = "Addressbook is empty! Please add in entries before sorting.";
 
     private static final String DIVIDER = "===================================================";
 
@@ -369,6 +365,8 @@ public class AddressBook {
         final String commandType = commandTypeAndParams[0];
         final String commandArgs = commandTypeAndParams[1];
         switch (commandType) {
+            case COMMAND_SORT_WORD:
+                return executeSortPerson(commandArgs);
         case COMMAND_ADD_WORD:
             return executeAddPerson(commandArgs);
         case COMMAND_FIND_WORD:
@@ -415,6 +413,18 @@ public class AddressBook {
      * @param commandArgs full command args string from the user
      * @return feedback display message for the operation result
      */
+
+    // return a sorted version of persons in addressbook based
+    // on alphabetical order of person's name
+    //original list is untouched (still based on sequence of being added)
+    private static String executeSortPerson(String commandArgs) {
+        if(ALL_PERSONS.isEmpty())
+            return COMMAND_SORT_ERROR_EMPTY_ADDRESSBOOK;
+        ArrayList<String[]> toBeDisplayed = sortAllPersonsInAddressBook();
+        showToUser(toBeDisplayed);
+        return getMessageForPersonsDisplayedSummary(toBeDisplayed);
+    }
+
     private static String executeAddPerson(String commandArgs) {
         // try decoding a person from the raw args
         final Optional<String[]> decodeResult = decodePersonFromString(commandArgs);
@@ -807,6 +817,25 @@ public class AddressBook {
     private static ArrayList<String[]> getAllPersonsInAddressBook() {
         return ALL_PERSONS;
     }
+
+    /**
+     * Sorts all persons in the address book base on names' alphabetical order
+     */
+    private static ArrayList<String[]> sortAllPersonsInAddressBook() {
+        ArrayList<String[]> tobeSorted = ( ArrayList<String[]>)ALL_PERSONS.clone();
+        Collections.sort(tobeSorted, new Comparator<String[]>() {
+            @Override
+            public int compare(final String[] entry1, final String[] entry2) {
+                final String field1 = entry1[0];
+                final String field2 = entry2[0];
+                return field1.compareTo(field2);
+            }
+        });
+        return tobeSorted;
+
+    }
+
+
 
     /**
      * Clears all persons in the address book and saves changes to file.
